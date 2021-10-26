@@ -3,10 +3,14 @@ package com.example.myfrag;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -14,6 +18,11 @@ import android.view.ViewGroup;
  * create an instance of this fragment.
  */
 public class Fragment3 extends Fragment {
+
+    private TextView text;
+    private Button button;
+    private FragsData fragsData;
+    private Observer<Integer> numberObserver;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -49,16 +58,31 @@ public class Fragment3 extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_3, container, false);
+        View view = inflater.inflate(R.layout.fragment_3, container, false);
+        text = (TextView) view.findViewById(R.id.current);
+        button = (Button) view.findViewById(R.id.button_decrease);
+        fragsData = new ViewModelProvider(requireActivity()).get(FragsData.class);
+        numberObserver = new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer newInteger) {
+                text.setText(newInteger.toString());
+            }
+        };
+        fragsData.counter.observe(getViewLifecycleOwner(), numberObserver);
+        button.setOnClickListener(new View.OnClickListener() {
+                                      @Override
+                                      public void onClick(View view) {
+                                          Integer i = fragsData.counter.getValue();
+                                          fragsData.counter.setValue(--i);
+                                      }
+                                  }
+        );
+        return view;
     }
 }
